@@ -1,71 +1,138 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Secret Encoder</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XOR Encoder/Decoder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 95%;
+      max-width: 500px;
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    textarea, input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 10px;
+      border: none;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .encode { background: #22c55e; }
+    .decode { background: #3b82f6; }
+    .copy { background: #f59e0b; }
+
+    .output {
+      margin-top: 15px;
+      background: #020617;
+      padding: 10px;
+      border-radius: 10px;
+      word-break: break-word;
+    }
+  </style>
 </head>
 <body>
-  <h1>Secret Encoder 🔐</h1>
+  <div class="container">
+    <h1>XOR Tool</h1>
 
-  <h2>Encode</h2>
-  <input id="encodeInput" placeholder="Enter message">
-  <button onclick="encode()">Encode</button>
+    <textarea id="inputText" placeholder="Enter message..."></textarea>
 
-  <p id="encodedOutput"></p>
-  <button onclick="copyEncoded()">Copy Encoded</button>
+    <button class="encode" onclick="encodeMessage()">Encode</button>
 
-  <p id="keyOutput"></p>
-  <button onclick="copyKey()">Copy Key</button>
+    <textarea id="encodedInput" placeholder="Encoded message (for decoding)"></textarea>
+    <textarea id="keyInput" placeholder="Key (for decoding)"></textarea>
 
-  <h2>Decode</h2>
-  <input id="encodedInput" placeholder="Encoded array">
-  <input id="keyInput" placeholder="Key array">
-  <button onclick="decode()">Decode</button>
+    <button class="decode" onclick="decodeMessage()">Decode</button>
 
-  <p id="decodedOutput"></p>
+    <div class="output">
+      <strong>Encoded:</strong>
+      <div id="encodedOutput"></div>
+      <button class="copy" onclick="copyText('encodedOutput')">Copy Encoded</button>
+    </div>
+
+    <div class="output">
+      <strong>Key:</strong>
+      <div id="keyOutput"></div>
+      <button class="copy" onclick="copyText('keyOutput')">Copy Key</button>
+    </div>
+
+    <div class="output">
+      <strong>Decoded:</strong>
+      <div id="decodedOutput"></div>
+    </div>
+  </div>
 
   <script>
-    let lastEncoded = "";
-    let lastKey = "";
-
-    function encode() {
-      let text = document.getElementById("encodeInput").value;
+    function encodeMessage() {
+      const text = document.getElementById('inputText').value;
       let encoded = [];
       let key = [];
 
       for (let i = 0; i < text.length; i++) {
-        let r = Math.floor(Math.random() * 10000) + 1;
+        const charCode = text.charCodeAt(i);
+        const array = new Uint8Array(1);
+        crypto.getRandomValues(array);
+        const r = array[0];
         key.push(r);
-        encoded.push(text.charCodeAt(i) * r);
+        encoded.push(charCode ^ r);
       }
 
-      lastEncoded = JSON.stringify(encoded);
-      lastKey = JSON.stringify(key);
-
-      document.getElementById("encodedOutput").innerText = "Encoded: " + lastEncoded;
-      document.getElementById("keyOutput").innerText = "Key: " + lastKey;
+      document.getElementById('encodedOutput').innerText = JSON.stringify(encoded);
+      document.getElementById('keyOutput').innerText = JSON.stringify(key);
     }
 
-    function copyEncoded() {
-      navigator.clipboard.writeText(lastEncoded);
-      alert("Encoded copied!");
-    }
+    function decodeMessage() {
+      try {
+        const encoded = JSON.parse(document.getElementById('encodedInput').value);
+        const key = JSON.parse(document.getElementById('keyInput').value);
 
-    function copyKey() {
-      navigator.clipboard.writeText(lastKey);
-      alert("Key copied!");
-    }
+        let decoded = '';
+        for (let i = 0; i < encoded.length; i++) {
+          decoded += String.fromCharCode(encoded[i] ^ key[i]);
+        }
 
-    function decode() {
-      let encoded = JSON.parse(document.getElementById("encodedInput").value);
-      let key = JSON.parse(document.getElementById("keyInput").value);
-
-      let decoded = "";
-
-      for (let i = 0; i < encoded.length; i++) {
-        decoded += String.fromCharCode(Math.floor(encoded[i] / key[i]));
+        document.getElementById('decodedOutput').innerText = decoded;
+      } catch (e) {
+        alert('Invalid input format');
       }
+    }
 
-      document.getElementById("decodedOutput").innerText = "Decoded: " + decoded;
+    function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text);
+      alert('Copied!');
     }
   </script>
 </body>

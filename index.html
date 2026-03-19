@@ -9,16 +9,24 @@
   <h2>Encode</h2>
   <input id="encodeInput" placeholder="Enter message">
   <button onclick="encode()">Encode</button>
+
   <p id="encodedOutput"></p>
+  <button onclick="copyEncoded()">Copy Encoded</button>
+
   <p id="keyOutput"></p>
+  <button onclick="copyKey()">Copy Key</button>
 
   <h2>Decode</h2>
   <input id="encodedInput" placeholder="Encoded array">
   <input id="keyInput" placeholder="Key array">
   <button onclick="decode()">Decode</button>
+
   <p id="decodedOutput"></p>
 
   <script>
+    let lastEncoded = "";
+    let lastKey = "";
+
     function encode() {
       let text = document.getElementById("encodeInput").value;
       let encoded = [];
@@ -30,8 +38,21 @@
         encoded.push(text.charCodeAt(i) * r);
       }
 
-      document.getElementById("encodedOutput").innerText = "Encoded: " + JSON.stringify(encoded);
-      document.getElementById("keyOutput").innerText = "Key: " + JSON.stringify(key);
+      lastEncoded = JSON.stringify(encoded);
+      lastKey = JSON.stringify(key);
+
+      document.getElementById("encodedOutput").innerText = "Encoded: " + lastEncoded;
+      document.getElementById("keyOutput").innerText = "Key: " + lastKey;
+    }
+
+    function copyEncoded() {
+      navigator.clipboard.writeText(lastEncoded);
+      alert("Encoded copied!");
+    }
+
+    function copyKey() {
+      navigator.clipboard.writeText(lastKey);
+      alert("Key copied!");
     }
 
     function decode() {

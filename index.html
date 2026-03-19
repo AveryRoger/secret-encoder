@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Secret Encoder</title>
+</head>
+<body>
+  <h1>Secret Encoder 🔐</h1>
 
+  <h2>Encode</h2>
+  <input id="encodeInput" placeholder="Enter message">
+  <button onclick="encode()">Encode</button>
+  <p id="encodedOutput"></p>
+  <p id="keyOutput"></p>
+
+  <h2>Decode</h2>
+  <input id="encodedInput" placeholder="Encoded array">
+  <input id="keyInput" placeholder="Key array">
+  <button onclick="decode()">Decode</button>
+  <p id="decodedOutput"></p>
+
+  <script>
+    function encode() {
+      let text = document.getElementById("encodeInput").value;
+      let encoded = [];
+      let key = [];
+
+      for (let i = 0; i < text.length; i++) {
+        let r = Math.floor(Math.random() * 10000) + 1;
+        key.push(r);
+        encoded.push(text.charCodeAt(i) * r);
+      }
+
+      document.getElementById("encodedOutput").innerText = "Encoded: " + JSON.stringify(encoded);
+      document.getElementById("keyOutput").innerText = "Key: " + JSON.stringify(key);
+    }
+
+    function decode() {
+      let encoded = JSON.parse(document.getElementById("encodedInput").value);
+      let key = JSON.parse(document.getElementById("keyInput").value);
+
+      let decoded = "";
+
+      for (let i = 0; i < encoded.length; i++) {
+        decoded += String.fromCharCode(Math.floor(encoded[i] / key[i]));
+      }
+
+      document.getElementById("decodedOutput").innerText = "Decoded: " + decoded;
+    }
+  </script>
+</body>
+</html>
